@@ -44,87 +44,172 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-slate-950">
-      <div className="absolute inset-0 bg-mesh-gradient pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-950 relative overflow-hidden">
 
-      <div className="relative w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 font-bold text-2xl text-white">
-            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center text-xl">⚡</div>
+      {/* background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative w-full max-w-md">
+
+        {/* Logo + Title */}
+        <div className="text-center mb-10">
+          <Link to="/" className="inline-flex items-center gap-3 font-bold text-2xl text-white">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-violet-500 flex items-center justify-center shadow-lg">
+              ⚡
+            </div>
             QuizMaster
           </Link>
-          <h1 className="text-2xl font-bold text-white mt-6 mb-1">Create your account</h1>
-          <p className="text-slate-500">Join thousands of quiz enthusiasts</p>
+
+          <h1 className="text-3xl font-bold text-white mt-6">Create your account</h1>
+          <p className="text-slate-400 mt-1">Join thousands of quiz enthusiasts</p>
         </div>
 
-        <div className="card border-slate-800">
-          {/* Avatar picker */}
-          <div className="flex justify-center mb-6">
-            <button type="button" onClick={() => fileRef.current?.click()} className="group relative">
-              <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-dashed border-slate-600 group-hover:border-primary-500 overflow-hidden transition-colors flex items-center justify-center">
-                {preview
-                  ? <img src={preview} alt="preview" className="w-full h-full object-cover" />
-                  : <HiPhotograph size={28} className="text-slate-500 group-hover:text-primary-400" />}
+        {/* Card */}
+        <div className="relative p-[1px] rounded-2xl bg-gradient-to-b from-slate-700/40 to-slate-800/20">
+
+          <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl p-7 border border-slate-800">
+
+            {/* Avatar Picker */}
+            <div className="flex justify-center mb-7">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="group relative"
+              >
+                <div className="w-24 h-24 rounded-full bg-slate-800 border border-slate-700 group-hover:border-primary-500 overflow-hidden flex items-center justify-center transition">
+                  {preview ? (
+                    <img src={preview} className="w-full h-full object-cover" />
+                  ) : (
+                    <HiPhotograph size={30} className="text-slate-500 group-hover:text-primary-400" />
+                  )}
+                </div>
+
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm shadow-lg">
+                  +
+                </div>
+              </button>
+
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            <p className="text-xs text-center text-slate-500 mb-6">
+              Upload profile picture (optional)
+            </p>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+              {/* Name */}
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Full Name</label>
+
+                <div className="relative">
+                  <HiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="John Doe"
+                    className={`w-full bg-slate-800 border ${errors.name ? 'border-red-500' : 'border-slate-700'} focus:border-primary-500 focus:ring-1 focus:ring-primary-500 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white outline-none transition`}
+                    {...register('name')}
+                  />
+                </div>
+
+                {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
               </div>
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center text-white text-xs">+</span>
-            </button>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+
+              {/* Email */}
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Email Address</label>
+
+                <div className="relative">
+                  <HiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className={`w-full bg-slate-800 border ${errors.email ? 'border-red-500' : 'border-slate-700'} focus:border-primary-500 focus:ring-1 focus:ring-primary-500 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white outline-none transition`}
+                    {...register('email')}
+                  />
+                </div>
+
+                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Password</label>
+
+                <div className="relative">
+                  <HiLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="Min. 6 characters"
+                    className={`w-full bg-slate-800 border ${errors.password ? 'border-red-500' : 'border-slate-700'} focus:border-primary-500 focus:ring-1 focus:ring-primary-500 rounded-lg pl-10 pr-10 py-2.5 text-sm text-white outline-none transition`}
+                    {...register('password')}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  >
+                    {showPw ? <HiEyeOff /> : <HiEye />}
+                  </button>
+                </div>
+
+                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="text-sm text-slate-400 mb-1 block">Confirm Password</label>
+
+                <div className="relative">
+                  <HiLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="Repeat password"
+                    className={`w-full bg-slate-800 border ${errors.confirmPassword ? 'border-red-500' : 'border-slate-700'} focus:border-primary-500 focus:ring-1 focus:ring-primary-500 rounded-lg pl-10 py-2.5 text-sm text-white outline-none transition`}
+                    {...register('confirmPassword')}
+                  />
+                </div>
+
+                {errors.confirmPassword && (
+                  <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 mt-2 rounded-lg font-semibold bg-gradient-to-r from-primary-500 to-violet-500 hover:opacity-90 transition flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner size="sm" /> Creating account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+
+            </form>
+
+            <p className="text-center text-sm text-slate-500 mt-6">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary-400 hover:text-primary-300 font-medium">
+                Sign in
+              </Link>
+            </p>
+
           </div>
-          <p className="text-xs text-slate-600 text-center -mt-3 mb-5">Click to upload profile picture (optional)</p>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name */}
-            <div>
-              <label className="input-label">Full Name</label>
-              <div className="relative">
-                <HiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
-                <input type="text" placeholder="John Doe" className={`input-field pl-10 ${errors.name ? 'border-red-500' : ''}`} {...register('name')} />
-              </div>
-              {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="input-label">Email Address</label>
-              <div className="relative">
-                <HiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
-                <input type="email" placeholder="you@example.com" className={`input-field pl-10 ${errors.email ? 'border-red-500' : ''}`} {...register('email')} />
-              </div>
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="input-label">Password</label>
-              <div className="relative">
-                <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
-                <input type={showPw ? 'text' : 'password'} placeholder="Min. 6 characters" className={`input-field pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`} {...register('password')} />
-                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                  {showPw ? <HiEyeOff size={17} /> : <HiEye size={17} />}
-                </button>
-              </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="input-label">Confirm Password</label>
-              <div className="relative">
-                <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
-                <input type={showPw ? 'text' : 'password'} placeholder="Repeat password" className={`input-field pl-10 ${errors.confirmPassword ? 'border-red-500' : ''}`} {...register('confirmPassword')} />
-              </div>
-              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>}
-            </div>
-
-            <button type="submit" disabled={isSubmitting} className="btn-primary w-full py-3 mt-2">
-              {isSubmitting ? <><Spinner size="sm" /> Creating account...</> : 'Create Account'}
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-slate-500 mt-5">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary-400 hover:text-primary-300 font-medium">Sign in</Link>
-          </p>
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ export default function QuizPlay() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [started, setStarted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
   const startTimeRef = useRef(Date.now());
   const questionStartRef = useRef(Date.now());
 
@@ -48,15 +49,17 @@ export default function QuizPlay() {
     }
   }, [submitted, id, submitMutation, navigate]);
 
-  // Timer
   useEffect(() => {
     if (!started || submitted || timeLeft === 0) return;
     if (timeLeft <= 0) { handleSubmit(answers); return; }
+
     const t = setInterval(() => setTimeLeft(p => {
       if (p <= 1) { clearInterval(t); handleSubmit(answers); return 0; }
       return p - 1;
     }), 1000);
+
     return () => clearInterval(t);
+
   }, [started, submitted, timeLeft, answers, handleSubmit]);
 
   if (isLoading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
@@ -66,85 +69,169 @@ export default function QuizPlay() {
   const progress = ((currentIndex) / questions.length) * 100;
   const isUrgent = timeLeft < 60;
 
-  const handleSelect = (idx) => { if (!selected && selected !== 0) setSelected(idx); };
+  const handleSelect = (idx) => {
+    if (!selected && selected !== 0) setSelected(idx);
+  };
 
   const handleNext = () => {
+
     const timeTaken = Math.round((Date.now() - questionStartRef.current) / 1000);
-    const newAnswers = [...answers, { selectedAnswer: selected ?? -1, timeTaken }];
+
+    const newAnswers = [...answers, {
+      selectedAnswer: selected ?? -1,
+      timeTaken
+    }];
+
     setAnswers(newAnswers);
     setSelected(null);
     questionStartRef.current = Date.now();
+
     if (currentIndex + 1 >= questions.length) {
       handleSubmit(newAnswers);
     } else {
       setCurrentIndex(i => i + 1);
     }
+
   };
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in">
-      {/* Header */}
+    <div className="max-w-3xl mx-auto animate-fade-in px-4">
+
+      {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+
+        <div className="glass-dark px-4 py-2 rounded-xl">
           <p className="text-gray-400 text-xs">Question</p>
-          <p className="text-white font-bold font-mono">{currentIndex + 1} / {questions.length}</p>
+          <p className="text-white font-bold font-mono text-lg">
+            {currentIndex + 1} / {questions.length}
+          </p>
         </div>
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono font-bold text-lg
-          ${isUrgent ? 'bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse' : 'glass text-white'}`}>
+
+        <div className={`flex items-center gap-2 px-5 py-2 rounded-xl font-mono font-bold text-lg border
+${isUrgent
+            ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse'
+            : 'glass border-white/10 text-white'
+          }`}>
+
           <FiClock className={isUrgent ? 'text-red-400' : 'text-brand-400'} />
           {formatTime(timeLeft)}
+
         </div>
+
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1.5 bg-white/5 rounded-full mb-8 overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-brand-600 to-purple-500 rounded-full transition-all duration-500"
-          style={{ width: `${progress}%` }} />
+      {/* PROGRESS */}
+      <div className="mb-10">
+
+        <div className="flex justify-between text-xs text-gray-400 mb-2">
+          <span>Progress</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+
+        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+
+          <div
+            className="h-full bg-gradient-to-r from-brand-600 via-purple-500 to-pink-500 rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+
+        </div>
+
       </div>
 
-      {/* Question card */}
-      <div className="card border-brand-500/20 mb-5 animate-scale-in" key={currentIndex}>
+      {/* QUESTION CARD */}
+      <div
+        className="card border-brand-500/20 mb-6 animate-scale-in"
+        key={currentIndex}
+      >
+
         {q.questionImage?.url && (
-          <div className="h-40 -mx-6 -mt-6 mb-6 rounded-t-2xl overflow-hidden">
-            <img src={q.questionImage.url} alt="question" className="w-full h-full object-cover" />
+          <div className="h-44 -mx-6 -mt-6 mb-6 rounded-t-2xl overflow-hidden">
+            <img
+              src={q.questionImage.url}
+              alt="question"
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
-        <h2 className="text-lg font-semibold text-white leading-relaxed mb-6">{q.questionText}</h2>
 
-        <div className="space-y-3">
+        <h2 className="text-xl font-semibold text-white leading-relaxed mb-8">
+          {q.questionText}
+        </h2>
+
+        <div className="space-y-4">
+
           {q.options?.map((opt, idx) => {
+
             const isSelected = selected === idx;
+
             return (
-              <button key={idx} onClick={() => handleSelect(idx)}
-                className={`w-full text-left px-5 py-4 rounded-xl border text-sm font-medium transition-all duration-200
-                  ${isSelected
-                    ? 'bg-brand-600/30 border-brand-500 text-white shadow-lg shadow-brand-900/30'
+
+              <button
+                key={idx}
+                onClick={() => handleSelect(idx)}
+                className={`w-full flex items-start gap-3 px-5 py-4 rounded-xl border text-sm font-medium transition-all duration-200
+${isSelected
+                    ? 'bg-brand-600/30 border-brand-500 text-white shadow-lg shadow-brand-900/40'
                     : 'glass border-white/10 text-gray-300 hover:border-brand-500/50 hover:bg-brand-600/10 hover:text-white'
                   }`}>
-                <span className={`inline-flex w-6 h-6 rounded-md items-center justify-center text-xs font-bold mr-3
-                  ${isSelected ? 'bg-brand-500 text-white' : 'bg-white/10 text-gray-400'}`}>
+
+                <span
+                  className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold
+${isSelected
+                      ? 'bg-brand-500 text-white'
+                      : 'bg-white/10 text-gray-400'
+                    }`}>
+
                   {String.fromCharCode(65 + idx)}
+
                 </span>
-                {opt}
+
+                <span className="flex-1 text-left">
+                  {opt}
+                </span>
+
               </button>
+
             );
+
           })}
+
         </div>
+
       </div>
 
-      <div className="flex gap-3">
+      {/* FOOTER */}
+      <div className="flex items-center gap-3">
+
         {selected === null && selected !== 0 && (
+
           <div className="flex items-center gap-2 text-yellow-400/70 text-xs flex-1">
-            <FiAlertCircle /> Select an answer or skip
+            <FiAlertCircle />
+            Select an answer or skip
           </div>
+
         )}
-        <button onClick={handleNext} disabled={submitMutation.isPending}
-          className="btn-primary px-8 py-3 ml-auto flex items-center gap-2 disabled:opacity-50">
+
+        <button
+          onClick={handleNext}
+          disabled={submitMutation.isPending}
+          className="btn-primary px-8 py-3 ml-auto flex items-center gap-2 disabled:opacity-50 text-base"
+        >
+
           {submitMutation.isPending
-            ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Submitting...</>
-            : currentIndex + 1 === questions.length ? 'Submit Quiz' : 'Next →'}
+            ? <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Submitting...
+            </>
+            : currentIndex + 1 === questions.length
+              ? 'Submit Quiz'
+              : 'Next →'}
+
         </button>
+
       </div>
+
     </div>
   );
 }
